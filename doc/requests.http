@@ -1,0 +1,15 @@
+###
+// @name Library Event
+// @no-log
+POST http://localhost:8080/v1/library/event
+Content-Type: application/json
+
+{
+  "id": null,
+  "type": "NEW",
+  "book": {
+    "id": 123,
+    "name": "Kafka Using Spring Boot",
+    "author": "Dilip"
+  }
+}
