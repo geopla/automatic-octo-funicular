@@ -94,6 +94,12 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Required to run 'confluentinc/cp-kafka' in testcontainer from a JUnit test  -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.19.0</version>
+        </dependency>
         <!-- TODO Spring Boot integration test with test containers
         <dependency>
             <groupId>org.springframework.boot</groupId>

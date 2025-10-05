@@ -15,12 +15,16 @@ class NotificationServiceTest {
 
     @BeforeAll
     static void beforeAll() {
+        String proxy = System.getenv().getOrDefault("IMAGE_PROXY", "");
+        String image = "confluentinc/cp-kafka:7.7.5";
+        String imageName = "%s%s".formatted(proxy, image);
+
         DockerImageName kafkaImageName = DockerImageName
-                .parse("artifactory.datev.de/docker-mirror/confluentinc/cp-kafka:7.7.5")
+                .parse(imageName)
                 .asCompatibleSubstituteFor("confluentinc/cp-kafka");
 
-            kafka = new ConfluentKafkaContainer(kafkaImageName);
-            kafka.start();
+        kafka = new ConfluentKafkaContainer(kafkaImageName);
+        kafka.start();
     }
 
     @AfterAll
