@@ -29,13 +29,17 @@ class NotificationServiceTest {
 
     @AfterAll
     static void afterAll() {
+        Logger LOGGER = LoggerFactory.getLogger(NotificationServiceTest.class);
+        String kafkaLogs = kafka.getLogs();
+
         kafka.stop();
+
+        LOGGER.info(kafkaLogs);
     }
 
     @Test
     @DisplayName("Should produce a library event")
     void shouldProduceLibraryEvent() {
-        Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
-        LOGGER.info("there will be tests, soon ...");
+
     }
 }
