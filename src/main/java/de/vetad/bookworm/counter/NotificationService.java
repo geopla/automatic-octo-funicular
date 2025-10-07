@@ -16,7 +16,7 @@ public class NotificationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
 
-    String topic = "bookworm.libraryevent";
+    static final String topic = "bookworm.libraryevent";
 
     private final KafkaTemplate<Integer, String> kafkaTemplate;
 
