@@ -11,17 +11,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.K;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.Serializable;
 import java.util.Map;
-import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +75,7 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("Should produce a library event")
+    @DisplayName("Should produce a library event - blocking send")
     void shouldProduceLibraryEvent() {
         LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class)
                 .create();
@@ -85,5 +83,16 @@ class NotificationServiceTest {
         SendResult<Integer, String> sendResult = notificationService.emit(libraryEvent);
 
         assertThat(sendResult).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should produce a library event asynchronous send")
+    void shouldProduceLibraryEventAsync() {
+        LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class)
+                .create();
+
+        CompletableFuture<Void> emitting = notificationService.emitAsync(libraryEvent);
+
+        assertThat(emitting).succeedsWithin(2, TimeUnit.SECONDS);
     }
 }

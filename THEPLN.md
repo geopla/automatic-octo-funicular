@@ -5,6 +5,7 @@
 - [ ] produce and consume a Kafka message from a unit test
   - [x] configure `KafkaTemplate` in a unit test
   - [x] produce a message with body type `String`, check the broker that the message has been written to a partition
+    - [ ] switch to asynchronous message sending
   - [ ] consume a message, completing the test
   - [ ] change the message body to `LibraryEvent`
 - [ ] produce and consume a Kafka message from a `@SpringBootTest`

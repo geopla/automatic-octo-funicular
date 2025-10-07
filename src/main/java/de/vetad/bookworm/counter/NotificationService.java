@@ -6,6 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -32,5 +33,13 @@ public class NotificationService {
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    CompletableFuture<Void> emitAsync(LibraryEvent libraryEvent) {
+        Integer key = 42;
+        String value = libraryEvent.toString();
+
+        return kafkaTemplate.send(topic, key, value)
+                .thenAccept(sendResult -> { });
     }
 }
