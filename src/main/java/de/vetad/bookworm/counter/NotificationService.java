@@ -19,22 +19,21 @@ public class NotificationService {
 
     private final String topic;
 
-    private final KafkaTemplate<Integer, String> kafkaTemplate;
+    private final KafkaTemplate<Integer, LibraryEvent> kafkaTemplate;
 
     public NotificationService(
             @Value("${notifications.libraryevent.topic}") String topic,
-            KafkaTemplate<Integer, String> kafkaTemplate) {
+            KafkaTemplate<Integer, LibraryEvent> kafkaTemplate) {
 
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
     }
 
-    SendResult<Integer, String> emitBlocking(LibraryEvent libraryEvent) {
+    SendResult<Integer, LibraryEvent> emitBlocking(LibraryEvent libraryEvent) {
         Integer key = 42;
-        String value = libraryEvent.toString();
 
         try {
-            return kafkaTemplate.send(topic, key, value).get(5, TimeUnit.SECONDS);
+            return kafkaTemplate.send(topic, key, libraryEvent).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
@@ -42,9 +41,8 @@ public class NotificationService {
 
     CompletableFuture<Void> emitAsync(LibraryEvent libraryEvent) {
         Integer key = 42;
-        String value = libraryEvent.toString();
 
-        return kafkaTemplate.send(topic, key, value)
+        return kafkaTemplate.send(topic, key, libraryEvent)
                 .thenAccept(sendResult -> { });
     }
 }

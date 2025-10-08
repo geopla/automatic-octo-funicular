@@ -7,8 +7,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.IntegerSerializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -55,14 +55,14 @@ class NotificationServiceTest {
         kafka.start();
     }
 
-    KafkaTemplate<Integer, String> createKafkaTemplate() {
+    KafkaTemplate<Integer, LibraryEvent> createKafkaTemplate() {
         Map<String, Object> producerConfig = Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class,
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
         );
 
-        DefaultKafkaProducerFactory<Integer, String> producerFactory = new DefaultKafkaProducerFactory<>(producerConfig);
+        DefaultKafkaProducerFactory<Integer, LibraryEvent> producerFactory = new DefaultKafkaProducerFactory<>(producerConfig);
 
         return new KafkaTemplate<>(producerFactory);
     }
@@ -87,15 +87,15 @@ class NotificationServiceTest {
 
         notificationService.emitBlocking(libraryEvent);
 
-        try (KafkaConsumer<Integer, String> kafkaConsumer = createKafkaConsumer(topic)) {
+        try (KafkaConsumer<Integer, LibraryEvent> kafkaConsumer = createKafkaConsumer(topic)) {
             kafkaConsumer.subscribe(List.of(topic));
-            ConsumerRecords<Integer, String> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
+            ConsumerRecords<Integer, LibraryEvent> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
 
             // guard granting exclusivity of topic within that single test
             assertThat(records.count()).isEqualTo(1);
 
-            ConsumerRecord<Integer, String> record = records.iterator().next();
-            assertThat(record.value()).isEqualTo(libraryEvent.toString());
+            ConsumerRecord<Integer, LibraryEvent> record = records.iterator().next();
+            assertThat(record.value()).isEqualTo(libraryEvent);
         }
     }
 
@@ -111,15 +111,15 @@ class NotificationServiceTest {
 
         assertThat(emitting).succeedsWithin(2, TimeUnit.SECONDS);
 
-        try (KafkaConsumer<Integer, String> kafkaConsumer = createKafkaConsumer(topic)) {
+        try (KafkaConsumer<Integer, LibraryEvent> kafkaConsumer = createKafkaConsumer(topic)) {
             kafkaConsumer.subscribe(List.of(topic));
-            ConsumerRecords<Integer, String> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
+            ConsumerRecords<Integer, LibraryEvent> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
 
             // guard granting exclusivity of topic within that single test
             assertThat(records.count()).isEqualTo(1);
 
-            ConsumerRecord<Integer, String> record = records.iterator().next();
-            assertThat(record.value()).isEqualTo(libraryEvent.toString());
+            ConsumerRecord<Integer, LibraryEvent> record = records.iterator().next();
+            assertThat(record.value()).isEqualTo(libraryEvent);
         }
     }
 
@@ -131,7 +131,7 @@ class NotificationServiceTest {
         return "bookworm.libraryevent-%d".formatted(topicNumber.getAndIncrement());
     }
 
-    KafkaConsumer<Integer, String> createKafkaConsumer(String topic) {
+    KafkaConsumer<Integer, LibraryEvent> createKafkaConsumer(String topic) {
         return new KafkaConsumer<>(consumerProperties(topic));
     }
 
@@ -142,7 +142,8 @@ class NotificationServiceTest {
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG, groupId,
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
+                "spring.json.value.default.type", LibraryEvent.class,
                 // because consumer subscribes after producing a message
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
         );
