@@ -2,6 +2,7 @@ package de.vetad.bookworm.counter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,19 @@ public class NotificationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
 
-    static final String topic = "bookworm.libraryevent";
+    private final String topic;
 
     private final KafkaTemplate<Integer, String> kafkaTemplate;
 
-    public NotificationService(KafkaTemplate<Integer, String> kafkaTemplate) {
+    public NotificationService(
+            @Value("${notifications.libraryevent.topic}") String topic,
+            KafkaTemplate<Integer, String> kafkaTemplate) {
+
         this.kafkaTemplate = kafkaTemplate;
+        this.topic = topic;
     }
 
-    SendResult<Integer, String> emit(LibraryEvent libraryEvent) {
+    SendResult<Integer, String> emitBlocking(LibraryEvent libraryEvent) {
         Integer key = 42;
         String value = libraryEvent.toString();
 

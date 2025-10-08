@@ -12,14 +12,12 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -29,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ class NotificationServiceTest {
 
     static ConfluentKafkaContainer kafka;
 
-    NotificationService notificationService;
+    AtomicLong topicNumber = new AtomicLong(0);
 
     @BeforeAll
     static void beforeAll() {
@@ -54,11 +53,6 @@ class NotificationServiceTest {
 
         kafka = new ConfluentKafkaContainer(kafkaImageName);
         kafka.start();
-    }
-
-    @BeforeEach
-    void setUp() {
-        notificationService = new NotificationService(createKafkaTemplate());
     }
 
     KafkaTemplate<Integer, String> createKafkaTemplate() {
@@ -84,31 +78,20 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("Should produce a library event - blocking send")
+    @DisplayName("Should produce a library event - blocking")
     void shouldProduceLibraryEvent() {
-        LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class)
-                .create();
+        String topic = nextTopicName();
+        NotificationService notificationService = createNotificationServiceUsing(topic);
 
-        SendResult<Integer, String> sendResult = notificationService.emit(libraryEvent);
+        LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class).create();
 
-        assertThat(sendResult).isNotNull();
-    }
+        notificationService.emitBlocking(libraryEvent);
 
-    @Test
-    @DisplayName("Should produce a library event asynchronous send")
-    void shouldProduceLibraryEventAsync() {
-        LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class)
-                .create();
-
-        CompletableFuture<Void> emitting = notificationService.emitAsync(libraryEvent);
-
-        assertThat(emitting).succeedsWithin(2, TimeUnit.SECONDS);
-
-        try (KafkaConsumer<Integer, String> kafkaConsumer = createKafkaConsumer()) {
-            kafkaConsumer.subscribe(List.of(NotificationService.topic));
+        try (KafkaConsumer<Integer, String> kafkaConsumer = createKafkaConsumer(topic)) {
+            kafkaConsumer.subscribe(List.of(topic));
             ConsumerRecords<Integer, String> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
 
-            // guard against writing into the same topic from two tests in parallel
+            // guard granting exclusivity of topic within that single test
             assertThat(records.count()).isEqualTo(1);
 
             ConsumerRecord<Integer, String> record = records.iterator().next();
@@ -116,12 +99,44 @@ class NotificationServiceTest {
         }
     }
 
-    KafkaConsumer<Integer, String> createKafkaConsumer() {
-        return new KafkaConsumer<>(consumerProperties());
+    @Test
+    @DisplayName("Should produce a library event - asynchronous")
+    void shouldProduceLibraryEventAsync() {
+        String topic = nextTopicName();
+        NotificationService notificationService = createNotificationServiceUsing(topic);
+
+        LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class).create();
+
+        CompletableFuture<Void> emitting = notificationService.emitAsync(libraryEvent);
+
+        assertThat(emitting).succeedsWithin(2, TimeUnit.SECONDS);
+
+        try (KafkaConsumer<Integer, String> kafkaConsumer = createKafkaConsumer(topic)) {
+            kafkaConsumer.subscribe(List.of(topic));
+            ConsumerRecords<Integer, String> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
+
+            // guard granting exclusivity of topic within that single test
+            assertThat(records.count()).isEqualTo(1);
+
+            ConsumerRecord<Integer, String> record = records.iterator().next();
+            assertThat(record.value()).isEqualTo(libraryEvent.toString());
+        }
     }
 
-    Map<String, Object> consumerProperties() {
-        var groupId = "%s.CG".formatted(NotificationService.topic);
+    NotificationService createNotificationServiceUsing(String topic) {
+        return new NotificationService(topic, createKafkaTemplate());
+    }
+
+    String nextTopicName() {
+        return "bookworm.libraryevent-%d".formatted(topicNumber.getAndIncrement());
+    }
+
+    KafkaConsumer<Integer, String> createKafkaConsumer(String topic) {
+        return new KafkaConsumer<>(consumerProperties(topic));
+    }
+
+    Map<String, Object> consumerProperties(String topic) {
+        var groupId = "%s.CG".formatted(topic);
 
         return Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
