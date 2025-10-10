@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  kafka:
+    image: ${IMAGE_PROXY}confluentinc/cp-kafka:7.7.5
+    container_name: bookworm_kafka
+    ports:
+      - "9092:9092"
+    environment:
+      CLUSTER_ID: "2465af7f-097a-bee5-7a23-06aaaa9dd887"
+      KAFKA_KRAFT_MODE: "true"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+    volumes:
+      - kafka_volume_data:/var/lib/kafka/data
+      - kafka_volume_secrets:/etc/kafka/secrets
+      - kafka_volume_logs:/var/log/kafka
+      - kafka_volume_config:/etc/kafka/config
+      - kafka_volume_shared_config:/mnt/shared/config
+
+volumes:
+  kafka_volume_data:
+    driver: local
+  kafka_volume_secrets:
+    driver: local
+  kafka_volume_logs:
+    driver: local
+  kafka_volume_config:
+    driver: local
+  kafka_volume_shared_config:
+    driver: local

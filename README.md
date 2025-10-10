@@ -2,11 +2,16 @@
 Sample project to fiddle around with Spring Boot Kafka.
 
 ## Preconditions
-- Set environment variable `IMAGE_PROXY` if there is a proxy needed to pull an image
-- Remember to start Podman Desktop
+- set environment variable `IMAGE_PROXY` if there is a proxy needed to pull an image
+- remember to start Podman Desktop
+
+## Running the application locally
+- start the container with `podman compose up --detach`
+  - check Podman Desktop if container is actually running
+  - make sure a `.env` file with variable `IMAGE_PROXY` is present in case a proxy is required to pull the image
 
 ## Counter
-- Scanning books and produce Kafka events
+- scanning books and produce Kafka events
 - see [HTTP requests](doc/requests.http) for sending commands
 
 ## Shelf
