@@ -8,11 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 
 @WebMvcTest(LibraryEventsController.class)
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.yml")
 class LibraryEventsControllerTest {
 
     @Value("${api.version}")
@@ -20,6 +21,9 @@ class LibraryEventsControllerTest {
 
     @Autowired
     WebTestClient client;
+
+    @MockitoBean
+    NotificationService notificationService;
 
     @Test
     @DisplayName("Should accept a library event")

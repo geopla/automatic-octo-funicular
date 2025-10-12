@@ -11,10 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.version}")
 public class LibraryEventsController {
 
+    private final NotificationService notificationService;
+
+    public LibraryEventsController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
     @PostMapping("/library/event")
     public ResponseEntity<LibraryEvent> libraryEvent(
             @RequestBody LibraryEvent libraryEvent
     ) {
+        notificationService.emitBlocking(libraryEvent);
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
