@@ -4,6 +4,7 @@ Sample project to fiddle around with Spring Boot Kafka.
 ## Preconditions
 - set environment variable `IMAGE_PROXY` if there is a proxy needed to pull an image
 - remember to start Podman Desktop
+- ensure that your Kafka image allows auto creation of topics; `auto.create.topics.enable = true`
 
 ## Running the application locally
 - start the container with `podman compose up --detach`

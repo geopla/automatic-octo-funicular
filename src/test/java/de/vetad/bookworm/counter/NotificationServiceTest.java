@@ -10,6 +10,7 @@ import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -35,6 +36,9 @@ class NotificationServiceTest {
 
     static ConfluentKafkaContainer kafka;
 
+    KafkaTemplate<Integer, LibraryEvent> kafkaTemplate;
+
+    String topicBaseName = "bookwork.libraryevent";
     AtomicLong topicNumber = new AtomicLong(0);
 
     @BeforeAll
@@ -55,13 +59,17 @@ class NotificationServiceTest {
         kafka.start();
     }
 
-    KafkaTemplate<Integer, LibraryEvent> createKafkaTemplate() {
+    @BeforeEach
+    void setUp() {
+        kafkaTemplate = createKafkaTemplate(kafka.getBootstrapServers());
+    }
+
+    KafkaTemplate<Integer, LibraryEvent> createKafkaTemplate(String bootstrapServers) {
         Map<String, Object> producerConfig = Map.of(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers(),
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
         );
-
         DefaultKafkaProducerFactory<Integer, LibraryEvent> producerFactory = new DefaultKafkaProducerFactory<>(producerConfig);
 
         return new KafkaTemplate<>(producerFactory);
@@ -78,10 +86,10 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("Should produce a library event - blocking")
+    @DisplayName("Should produce AND consume a library event - blocking")
     void shouldProduceLibraryEvent() {
         String topic = nextTopicName();
-        NotificationService notificationService = createNotificationServiceUsing(topic);
+        NotificationService notificationService = createNotificationServiceWith(topic);
 
         LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class).create();
 
@@ -100,10 +108,10 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("Should produce a library event - asynchronous")
+    @DisplayName("Should produce AND consume a library event - asynchronous")
     void shouldProduceLibraryEventAsync() {
         String topic = nextTopicName();
-        NotificationService notificationService = createNotificationServiceUsing(topic);
+        NotificationService notificationService = createNotificationServiceWith(topic);
 
         LibraryEvent libraryEvent = Instancio.of(LibraryEvent.class).create();
 
@@ -111,6 +119,7 @@ class NotificationServiceTest {
 
         assertThat(emitting).succeedsWithin(2, TimeUnit.SECONDS);
 
+        // just a demo of how to use a KafkaConsumer directly instead of Spring Boot Kafka test utils
         try (KafkaConsumer<Integer, LibraryEvent> kafkaConsumer = createKafkaConsumer(topic)) {
             kafkaConsumer.subscribe(List.of(topic));
             ConsumerRecords<Integer, LibraryEvent> records = kafkaConsumer.poll(Duration.of(2, ChronoUnit.SECONDS));
@@ -123,12 +132,13 @@ class NotificationServiceTest {
         }
     }
 
-    NotificationService createNotificationServiceUsing(String topic) {
-        return new NotificationService(topic, createKafkaTemplate());
+    NotificationService createNotificationServiceWith(String topicName) {
+        // note that this works only with topic autocreation feature enabled
+        return new NotificationService(topicName, kafkaTemplate);
     }
 
     String nextTopicName() {
-        return "bookworm.libraryevent-%d".formatted(topicNumber.getAndIncrement());
+        return "%s-%d".formatted(topicBaseName, topicNumber.getAndIncrement());
     }
 
     KafkaConsumer<Integer, LibraryEvent> createKafkaConsumer(String topic) {

@@ -37,6 +37,8 @@ class LibraryEventsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(libraryEvent)
                 .exchange()
-                .expectStatus().isAccepted();
+                .expectStatus().isAccepted()
+                .expectBody(LibraryEvent.class)
+                .isEqualTo(libraryEvent);
     }
 }

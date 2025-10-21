@@ -35,6 +35,7 @@ public class NotificationService {
         try {
             return kafkaTemplate.send(topic, key, libraryEvent).get(5, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOGGER.warn("failed to send message to Kafka topic {}", topic);
             throw new RuntimeException(e);
         }
     }
