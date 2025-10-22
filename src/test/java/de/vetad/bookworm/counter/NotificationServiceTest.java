@@ -1,5 +1,6 @@
 package de.vetad.bookworm.counter;
 
+import de.vetad.bookworm.Kafka;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -20,7 +21,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -47,15 +47,7 @@ class NotificationServiceTest {
     }
 
     static void startKafkaContainer() {
-        String proxy = System.getenv().getOrDefault("IMAGE_PROXY", "");
-        String image = "confluentinc/cp-kafka:7.7.5";
-        String imageName = "%s%s".formatted(proxy, image);
-
-        DockerImageName kafkaImageName = DockerImageName
-                .parse(imageName)
-                .asCompatibleSubstituteFor("confluentinc/cp-kafka");
-
-        kafka = new ConfluentKafkaContainer(kafkaImageName);
+        kafka = new ConfluentKafkaContainer(Kafka.DOCKER_IMAGE_NAME);
         kafka.start();
     }
 

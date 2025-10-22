@@ -1,12 +1,12 @@
 package de.vetad.bookworm;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,15 +14,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class BookwormApplicationTest {
 
+    // TODO evaluate how to deal with @Testcontainers, @Container, ... after having org.springframework.boot:spring-boot-testcontainers
+
     @Container
-    static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(
-            DockerImageName.parse("%s%s".formatted(
-                            System.getenv().getOrDefault("IMAGE_PROXY", ""),
-                            "confluentinc/cp-kafka:7.7.5"))
-                    .asCompatibleSubstituteFor("confluentinc/cp-kafka")
-    );
+    static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(Kafka.DOCKER_IMAGE_NAME);
 
     @Test
+    @DisplayName("Should load application context - with all its beans")
     void contextLoads(ApplicationContext context) {
         assertThat(context).isNotNull();
     }
