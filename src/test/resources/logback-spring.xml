@@ -12,8 +12,4 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
-
-    <!-- just for testing, you won't have something like that in production code -->
-    <logger name = "de.vetad.bookworm.logging" level="TRACE" />
-
 </configuration>
