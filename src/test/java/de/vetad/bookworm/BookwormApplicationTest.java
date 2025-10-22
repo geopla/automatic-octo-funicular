@@ -14,8 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class BookwormApplicationTest {
 
-    // TODO evaluate how to deal with @Testcontainers, @Container, ... after having org.springframework.boot:spring-boot-testcontainers
-
     @Container
     static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(Kafka.DOCKER_IMAGE_NAME);
 
