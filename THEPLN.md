@@ -1,9 +1,21 @@
 # The PLN
 
 ## Learnings
+### Kafka
 - no need to start a Spring Boot application context when testing a 'Kafka' service
 - reading from a topic with Kafka test utils is not much of a win
 - no `@Configuration` class for Kafka needed at all when using Spring autoconfiguration
+
+### Testcontainers
+According to the [Spring Boot documentation](https://docs.spring.io/spring-boot/4.0/reference/testing/testcontainers.html) there are two ways to manage Testcontainers
+- as Spring Beans
+  - needs explicit container type to work with `@ServiceConnection`, no `GenericContainer<?>`
+- by JUnit extension with annotations @Testcontainers and @Container
+- container configuration interfaces can be imported into a `@TestConfiguration` class
+- container lifecycle is different for both variants
+  - JUnit extension: shared when declared static field, exclusive (restarted) otherwise
+  - [singleton container pattern](https://java.testcontainers.org/test_framework_integration/manual_lifecycle_control/#singleton-containers) might not work with podman because of disabled Ryuk?
+  - don't juse JUnit extension managed containers when beans rely on container functionality (possible exceptions on shutdown)
 
 ### Configuration
 **TODO**  

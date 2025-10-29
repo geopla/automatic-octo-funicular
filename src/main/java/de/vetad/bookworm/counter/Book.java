@@ -5,4 +5,5 @@ public record Book(
         String name,
         String author
 ) {
+
 }

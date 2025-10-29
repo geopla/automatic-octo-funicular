@@ -1,7 +1,12 @@
-spring:
-  application:
-    name: bookworm
+# Partial configuration only!
+# Because this is only a learning project, there is no deployment to a target system.
+# Either start it locally with Testcontainers for Kafka (and other infrastructure components)
+# using profile 'local' or run the tests which has its own application.yml
 
 api:
   version: v1
+
+spring:
+  application:
+    name: bookworm
 

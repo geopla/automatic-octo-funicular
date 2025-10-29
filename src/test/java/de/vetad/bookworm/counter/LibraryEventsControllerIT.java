@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 public class LibraryEventsControllerIT {
 
+    // TODO Switch from container management by JUnit extension to bean managed
+
     @Container
     @ServiceConnection
     static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(Kafka.DOCKER_IMAGE_NAME);
