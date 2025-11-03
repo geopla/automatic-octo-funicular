@@ -96,8 +96,7 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers-postgresql</artifactId>
-            <version>2.0.1</version>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Required to run 'confluentinc/cp-kafka' in testcontainer from a JUnit test  -->
