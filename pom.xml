@@ -94,6 +94,12 @@
             <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <version>2.0.1</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Required to run 'confluentinc/cp-kafka' in testcontainer from a JUnit test  -->
         <dependency>
             <groupId>commons-codec</groupId>

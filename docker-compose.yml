@@ -74,7 +74,21 @@ services:
       - kafka1
       - kafka2
 
+  postgres:
+    image: 680650095fe6845bcbedf252687ac19de3d5973fd868e6c5c639c42856a40dfe
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
 volumes:
   kafka1_data:
   kafka2_data:
   kafka3_data:
+  pgdata:
