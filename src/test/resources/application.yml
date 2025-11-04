@@ -24,6 +24,14 @@ spring:
     username: test
     password: test
 
+  liquibase:
+    enabled: true
+    change-log: "classpath:db/changelog/db.changelog-master.yml"
+
+logging:
+  level:
+    liquibase: TRACE
+
 notifications:
   libraryevent:
     topic: bookworm.libraryevent
