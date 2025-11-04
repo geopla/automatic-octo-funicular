@@ -51,6 +51,18 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- upfront dependency because of liquibase terror -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- required to get liquibase running? -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <!-- because of CVE-2024-25710 -->
         <dependency>

@@ -10,3 +10,18 @@ spring:
   application:
     name: bookworm
 
+
+  liquibase:
+    enabled: true
+    change-log: "classpath:db/changelog/db.changelog-master.yaml"
+    show-summary: verbose
+    show-summary-output: console
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: myuser
+    password: mypassword
+
+logging:
+  level:
+    liquibase: DEBUG

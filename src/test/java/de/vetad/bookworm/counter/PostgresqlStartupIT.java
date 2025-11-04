@@ -18,15 +18,12 @@ public class PostgresqlStartupIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17");
-
-
-    @Autowired
-    JdbcConnectionDetails connectionDetails;
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
+            .withDatabaseName("hollerkoch");
 
     @Test
     @DisplayName("Should inject PostgreSQL connection details")
     void shouldInjectConnectionDetails() {
-        assertThat(connectionDetails).isNotNull();
+        assertThat(postgres.getJdbcUrl()).isNotNull();
     }
 }

@@ -5,28 +5,15 @@ spring:
   application:
     name: bookworm
 
-  kafka:
-    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      group-id: bookworm.libraryevent.CG
-      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: de.vetad.bookworm.counter, de.vetad.bookworm.shelf
-    listener:
-      concurrency: 3
-
   datasource:
-    url: jdbc:postgresql://localhost:5432
-    username: test
-    password: test
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: myuser
+    password: mypassword
 
   liquibase:
     enabled: true
-    change-log: "classpath:db/changelog/db.changelog-master.yml"
+    show-summary: verbose
+    show-summary-output: console
 
 logging:
   level:
