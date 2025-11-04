@@ -6,7 +6,7 @@ spring:
     name: bookworm
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb
+    url: jdbc:postgresql://localhost:5432/bookworm
     username: myuser
     password: mypassword
 

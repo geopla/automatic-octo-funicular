@@ -13,11 +13,26 @@ spring:
     listener:
       concurrency: 3
 
-notifications:
-  libraryevent:
-    topic: bookworm.libraryevent
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bookworm
+    username: myuser
+    password: mypassword
+
+  liquibase:
+    enabled: true
+    change-log: "classpath:db/changelog/db.changelog-master.yaml"
+    show-summary: verbose
+    show-summary-output: console
+
+  jpa:
+    open-in-view: off
 
 logging:
   level:
     org.springframework.kafka: info
     org.apache.kafka.clients.NetworkClient: info
+    liquibase: DEBUG
+
+notifications:
+  libraryevent:
+  topic: bookworm.libraryevent

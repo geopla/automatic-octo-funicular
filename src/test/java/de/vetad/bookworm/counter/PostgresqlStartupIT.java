@@ -17,7 +17,7 @@ public class PostgresqlStartupIT {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
-            .withDatabaseName("hollerkoch");
+            .withDatabaseName("bookworm");
 
     @Test
     @DisplayName("Should inject PostgreSQL connection details")
