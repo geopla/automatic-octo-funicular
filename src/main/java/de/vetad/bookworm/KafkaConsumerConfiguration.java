@@ -9,11 +9,11 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConsumerConfiguration {
 
-//    @Bean
-//    public NewTopic inventoryEventTopic(@Value("${notifications.libraryevent.topic}") String topic) {
-//        return TopicBuilder.name(topic)
-//                .partitions(3)
-//                .replicas(3)
-//                .build();
-//    }
+    @Bean
+    public NewTopic inventoryEventTopic(@Value("${notifications.libraryevent.topic}") String topic) {
+        return TopicBuilder.name(topic)
+                .partitions(3)
+                .replicas(3)
+                .build();
+    }
 }

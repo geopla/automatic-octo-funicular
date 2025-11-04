@@ -1,10 +1,11 @@
 package de.vetad.bookworm.counter;
 
+
 import de.vetad.bookworm.Kafka;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
+import org.springframework.boot.autoconfigure.kafka.KafkaConnectionDetails;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -16,7 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Testcontainers
-public class PostgresqlStartupIT {
+public class LibraryEventsControllerIT {
+
+    // TODO Switch from container management by JUnit extension to bean managed
 
     @Container
     @ServiceConnection
@@ -26,13 +29,12 @@ public class PostgresqlStartupIT {
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17");
 
-
     @Autowired
-    JdbcConnectionDetails connectionDetails;
+    KafkaConnectionDetails connectionDetails;
 
     @Test
-    @DisplayName("Should inject PostgreSQL connection details")
-    void shouldInjectConnectionDetails() {
+    @DisplayName("Should work at all")
+    void shouldWorkAtAll() {
         assertThat(connectionDetails).isNotNull();
     }
 }

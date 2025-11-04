@@ -3,7 +3,9 @@ package de.vetad.bookworm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.ApplicationContext;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
@@ -15,7 +17,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BookwormApplicationTest {
 
     @Container
+    @ServiceConnection
     static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(Kafka.DOCKER_IMAGE_NAME);
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17");
 
     @Test
     @DisplayName("Should load application context - with all its beans")
