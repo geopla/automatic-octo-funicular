@@ -27,7 +27,7 @@ spring:
   liquibase:
     enabled: true
     change-log: "classpath:db/changelog/db.changelog-master.yaml"
-    show-summary: verbose
+    show-summary: summary
     show-summary-output: console
 
   jpa:
@@ -38,7 +38,7 @@ logging:
   level:
     org.springframework.kafka: info
     org.apache.kafka.clients.NetworkClient: info
-    liquibase: TRACE
+    liquibase: info
 
 notifications:
   libraryevent:
